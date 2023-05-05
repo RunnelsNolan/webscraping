@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import openpyxl as xl
-from openpyxl.styles import Font
+from openpyxl.styles import Font, PatternFill
 
 
 
@@ -14,18 +14,25 @@ wb = xl.Workbook()
 ws = wb.active
 ws.title = "Top Gainers"
 
-ws['A1'] = 'Name'
+ws['A1'] = 'Crypto Name'
 ws['B1'] = 'Price'
 ws['C1'] = '% Change'
 ws['D1'] = 'Price Change'
 ws['E1'] = 'Original Price'
-# NEEED CORRESPOINDING PRICE??
+
 
 
 title = soup.title
 print(title.text)
 
+header_fill = PatternFill(patternType= 'solid', fgColor= 'FFB266')
+header_font = Font(size=16, bold= True)
 
+for cell in ws[1:1]:
+    cell.font = header_font
+    cell.fill = header_fill
+name_font = Font(size = 11, italic=True)
+percent_font = Font(size = 11, color= "008000")
 
 crypto_rows = soup.find_all("tr")
 for x in range(1,6):
@@ -39,20 +46,27 @@ for x in range(1,6):
     price_change = price - original_price
 
     ws['A' + str(x + 1)] = name
-    ws['B' + str(x + 1)] = '$' + str(price)
+    ws['A' + str(x + 1)].font = name_font
+
+    ws['B' + str(x + 1)] = '$' + str(format(price, ',.2f'))
+
     ws['C' + str(x + 1)] = str(change_percent) + '%'
-    ws['D' + str( x + 1)] = '$' + str(price_change) 
-    ws['E' + str(x + 1)] = '$' + str(original_price) 
+    ws['C' + str(x + 1)].font = percent_font
+
+    ws['D' + str( x + 1)] = '$' + str(format(price_change, ',.4f')) 
+    ws['E' + str(x + 1)] = '$' + str(format(original_price, ',.4f') ) 
 
 ws.column_dimensions['A'].width = 23
 ws.column_dimensions['B'].width = 13
 ws.column_dimensions['C'].width = 14
 ws.column_dimensions['D'].width = 18
-ws.column_dimensions['E'].width = 14
+ws.column_dimensions['E'].width = 16
 
-header_font = Font(size=16, bold= True)
-for cell in ws[1:1]:
-    cell.font = header_font
+#header_font = Font(size=16, bold= True)
+
+
+
+
 
 
 
@@ -111,7 +125,7 @@ eth_price_change = ethereum_price - eth_original_price
 
 
 
-""" 
+
 import keys 
 from twilio.rest import Client
 
@@ -132,4 +146,3 @@ if bit_price_change >= 5 or bit_price_change <= 5:
 if eth_price_change >= 5 or eth_price_change <= 5:
     textmessage = client.messages.create(to=mycellphone, from_= TwilioNumber,body= f'Ethereum has chnaged by ${eth_price_change} ')
     print(textmessage.status)
- """
